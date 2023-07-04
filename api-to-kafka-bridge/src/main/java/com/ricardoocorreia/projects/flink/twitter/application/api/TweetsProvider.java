@@ -3,6 +3,7 @@ package com.ricardoocorreia.projects.flink.twitter.application.api;
 import com.twitter.clientlib.ApiException;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -20,19 +21,24 @@ public class TweetsProvider {
 
     private BufferedReader reader;
 
-    public Stream<String> get() throws ApiException {
+    @SneakyThrows({ApiException.class})
+    public Stream<String> get() {
 
-        InputStream apiInputStream = instance.getInstance().tweets().sampleStream().executeWithHttpInfo();
+        InputStream apiInputStream =
+                instance.getInstance()
+                        .tweets()
+                        .sampleStream()
+                        .executeWithHttpInfo();
 
         reader = new BufferedReader(
                 new InputStreamReader(apiInputStream));
 
-        return Stream.generate(() -> {
-            try {
-                return reader.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return Stream.generate(this::readTweet);
+    }
+
+    @SneakyThrows({IOException.class})
+    private String readTweet() {
+
+        return reader.readLine();
     }
 }

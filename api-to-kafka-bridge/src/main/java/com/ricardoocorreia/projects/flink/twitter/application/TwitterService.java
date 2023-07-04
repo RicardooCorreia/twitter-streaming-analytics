@@ -1,7 +1,6 @@
 package com.ricardoocorreia.projects.flink.twitter.application;
 
 import com.ricardoocorreia.projects.flink.twitter.application.api.TweetsProvider;
-import com.twitter.clientlib.ApiException;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -20,13 +19,8 @@ public class TwitterService {
 
     void startup(@Observes StartupEvent event) {
 
-        executorService.submit(() -> {
-            try {
+        executorService.submit(() ->
                 tweetsProvider.get()
-                        .forEach(System.out::println);
-            } catch (ApiException e) {
-                throw new RuntimeException(e);
-            }
-        });
+                        .forEach(System.out::println));
     }
 }
